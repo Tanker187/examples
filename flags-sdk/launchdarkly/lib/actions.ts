@@ -11,7 +11,15 @@ const BACKEND_URL =
   process.env.BACKEND_URL || 'https://shirt-shop-api.labs.vercel.dev'
 
 export async function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  // Clamp and sanitize delay to avoid excessively long or invalid timers
+  const maxDelayMs = 10_000 // 10 seconds
+  let safeMs = Number(ms)
+  if (!Number.isFinite(safeMs) || safeMs < 0) {
+    safeMs = 0
+  } else if (safeMs > maxDelayMs) {
+    safeMs = maxDelayMs
+  }
+  return new Promise((resolve) => setTimeout(resolve, safeMs))
 }
 
 export async function getCart(): Promise<Cart> {
