@@ -17,6 +17,8 @@ const PRODUCTS: Product[] = [
   },
 ]
 
+const VALID_PRODUCT_IDS = new Set(PRODUCTS.map((product) => product.id))
+
 const api = {
   list: async () => {
     return PRODUCTS
@@ -26,6 +28,11 @@ const api = {
   },
   cache: {
     get: async (product: Product['id']): Promise<boolean> => {
+      if (!VALID_PRODUCT_IDS.has(product)) {
+        // Unknown product ID; avoid making an external request with untrusted input.
+        return false
+      }
+
       return await fetch(
         `${process.env.UPSTASH_REDIS_REST_URL}/get/${product}?_token=${process.env.UPSTASH_REDIS_REST_TOKEN}`
       )
@@ -33,6 +40,11 @@ const api = {
         .then((response) => response.result === 'true')
     },
     set: async (product: Product['id'], hasStock: boolean) => {
+      if (!VALID_PRODUCT_IDS.has(product)) {
+        // Unknown product ID; do not store it in cache.
+        return false
+      }
+
       return await fetch(
         `${process.env.UPSTASH_REDIS_REST_URL}/set/${product}/${hasStock}?_token=${process.env.UPSTASH_REDIS_REST_TOKEN}`
       )
