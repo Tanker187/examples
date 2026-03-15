@@ -46,8 +46,15 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     }),
   ]
 
+  const nextauthParam =
+    typeof req.query.nextauth === 'string'
+      ? req.query.nextauth
+      : Array.isArray(req.query.nextauth)
+      ? req.query.nextauth[0]
+      : undefined
+
   const isDefaultSigninPage =
-    req.method === 'GET' && req.query.nextauth.includes('signin')
+    req.method === 'GET' && !!nextauthParam && nextauthParam.includes('signin')
 
   // Hides Sign-In with Ethereum from default sign page
   if (isDefaultSigninPage) {
