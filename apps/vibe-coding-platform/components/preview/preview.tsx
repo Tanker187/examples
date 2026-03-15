@@ -13,6 +13,19 @@ interface Props {
   url?: string
 }
 
+function sanitizeUrl(rawUrl: string): string | null {
+  try {
+    // Support absolute and relative URLs, but only http/https protocols.
+    const url = new URL(rawUrl, window.location.origin)
+    if (url.protocol === 'http:' || url.protocol === 'https:') {
+      return url.toString()
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
 export function Preview({ className, disabled, url }: Props) {
   const [currentUrl, setCurrentUrl] = useState(url)
   const [error, setError] = useState<string | null>(null)
@@ -42,11 +55,16 @@ export function Preview({ className, disabled, url }: Props) {
 
   const loadNewUrl = () => {
     if (iframeRef.current && inputValue) {
-      if (inputValue !== currentUrl) {
+      const safeUrl = sanitizeUrl(inputValue)
+      if (!safeUrl) {
+        setError('Invalid or unsupported URL')
+        return
+      }
+      if (safeUrl !== currentUrl) {
         setIsLoading(true)
         setError(null)
         loadStartTime.current = Date.now()
-        iframeRef.current.src = inputValue
+        iframeRef.current.src = safeUrl
       } else {
         refreshIframe()
       }
