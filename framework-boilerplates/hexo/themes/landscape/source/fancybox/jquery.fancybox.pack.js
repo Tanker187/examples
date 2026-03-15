@@ -1129,10 +1129,9 @@
         d = f(
           '<div class="fancybox-title fancybox-title-' +
             c +
-            '-wrap">' +
-            e +
-            '</div>'
+            '-wrap"></div>'
         );
+        d.text(e);
         switch (c) {
           case 'inside':
             c = b.skin;
