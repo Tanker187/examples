@@ -1,11 +1,17 @@
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import rateLimit from 'express-rate-limit'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const app = express()
+
+const aboutLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60, // limit each IP to 60 requests per `windowMs` for the /about route
+})
 
 // Home route - HTML
 app.get('/', (req, res) => {
@@ -32,7 +38,7 @@ app.get('/', (req, res) => {
   `)
 })
 
-app.get('/about', function (req, res) {
+app.get('/about', aboutLimiter, function (req, res) {
   res.sendFile(path.join(__dirname, '..', 'components', 'about.htm'))
 })
 
