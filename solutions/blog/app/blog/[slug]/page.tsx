@@ -51,6 +51,13 @@ export function generateMetadata({ params }) {
   }
 }
 
+function escapeJsonForHtml(data: unknown) {
+  return JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+}
+
 export default function Blog({ params }) {
   let post = getBlogPosts().find((post) => post.slug === params.slug)
 
@@ -64,7 +71,7 @@ export default function Blog({ params }) {
         type="application/ld+json"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: escapeJsonForHtml({
             '@context': 'https://schema.org',
             '@type': 'BlogPosting',
             headline: post.metadata.title,
