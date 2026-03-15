@@ -17,12 +17,14 @@ export default async function OpenStore() {
       { headers: { 'Content-Type': 'application/json' } }
     )
   } catch (err) {
+    console.error('Error in OpenStore handler', err)
     return new Response(
       JSON.stringify({
         status: 'error',
-        message: err instanceof Error ? err.message : err,
+        message: 'An error occurred while opening the store',
       }),
       {
+        status: 500,
         headers: { 'Content-Type': 'application/json' },
       }
     )
