@@ -120,9 +120,12 @@
 
         if (alt) $(this).after('<span class="caption">' + alt + '</span>');
 
-        $(this).wrap(
-          '<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>'
-        );
+        var $link = $('<a></a>')
+          .attr('href', this.src)
+          .attr('title', alt || '')
+          .addClass('fancybox');
+
+        $(this).wrap($link);
       });
 
     $(this)
