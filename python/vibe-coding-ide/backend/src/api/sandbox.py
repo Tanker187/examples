@@ -22,6 +22,15 @@ ALLOWED_PROBE_HOST_SUFFIXES: tuple[str, ...] = (
     "example.org",
 )
 
+# Map of allowed logical targets to concrete URLs that may be probed.
+# Only these server-defined URLs are ever used as HTTP request destinations,
+# so clients cannot control the full URL directly.
+ALLOWED_PROBE_URLS: dict[str, str] = {
+    # Example entries; adjust to match your deployment needs.
+    "status-example-com": "https://status.example.com/health",
+    "api-example-org": "https://api.example.org/status",
+}
+
 
 def _is_private_address(ip_str: str) -> bool:
     """Return True if the given IP string is not suitable for public probing."""
@@ -87,15 +96,21 @@ class SyncRequest(BaseModel):
 
 
 @router.get("/probe")
-async def probe_url(url: str) -> dict[str, Any]:
+async def probe_url(target: str) -> dict[str, Any]:
     """Server-side URL probe.
+
+    The client supplies a logical target key, which is mapped on the server
+    to a concrete URL from the ALLOWED_PROBE_URLS mapping. This prevents
+    clients from fully controlling the request URL and mitigates SSRF.
 
     Attempts a HEAD request first to avoid downloading the body.
     Some servers do not support HEAD; in that case, fall back to a
     streamed GET to obtain only the status code.
     """
-    # Validate URL to reduce SSRF risk before making any outbound request.
-    safe_url = validate_public_url(url)
+    # Look up the server-defined URL for this logical target.
+    safe_url = ALLOWED_PROBE_URLS.get(target)
+    if safe_url is None:
+        raise HTTPException(status_code=400, detail="Unknown probe target.")
 
     status_code: int | None = None
     try:
