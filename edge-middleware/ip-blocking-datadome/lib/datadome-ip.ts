@@ -34,9 +34,22 @@ export async function addIpRule(
 }
 
 export async function removeRuleById(customRuleId: string) {
+  // Validate the rule ID to avoid using arbitrary user input in the request URL.
+  // Allow only common identifier characters and enforce a reasonable length.
+  const isValidCustomRuleId =
+    typeof customRuleId === 'string' &&
+    customRuleId.length > 0 &&
+    customRuleId.length <= 256 &&
+    /^[A-Za-z0-9_-]+$/.test(customRuleId)
+
+  if (!isValidCustomRuleId) {
+    throw new Error('Invalid custom rule id')
+  }
+
   try {
+    const safeCustomRuleId = encodeURIComponent(customRuleId)
     const req = await fetch(
-      `https://customer-api.datadome.co/1.0/protection/custom-rules/${customRuleId}?apikey=${process.env.DATADOME_MANAGEMENT_KEY}`,
+      `https://customer-api.datadome.co/1.0/protection/custom-rules/${safeCustomRuleId}?apikey=${process.env.DATADOME_MANAGEMENT_KEY}`,
       {
         method: 'DELETE',
         headers: { Accept: '*/*', 'Content-Type': 'application/json' },
