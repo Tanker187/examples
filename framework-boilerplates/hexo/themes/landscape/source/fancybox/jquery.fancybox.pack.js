@@ -190,7 +190,8 @@
             k ||
               ('inline' === n
                 ? g
-                  ? (k = f(r(g) ? g.replace(/.*(?=#[^\s]+$)/, '') : g))
+                  ? ((g = r(g) ? g.replace(/.*(?=#[^\s]+$)/, '') : g),
+                    g.charAt(0) === '#' && (k = f(g)))
                   : l.isDom && (k = c)
                 : 'html' === n
                 ? (k = g)
