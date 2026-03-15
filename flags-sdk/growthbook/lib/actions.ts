@@ -10,8 +10,18 @@ import { getCartId } from './get-cart-id'
 const BACKEND_URL =
   process.env.BACKEND_URL || 'https://shirt-shop-api.labs.vercel.dev'
 
+const MAX_DELAY_MS = 1000
+
 export async function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  // Normalize and bound the delay to avoid unbounded timers from untrusted input.
+  let safeDelay = Number(ms)
+  if (!Number.isFinite(safeDelay) || safeDelay < 0) {
+    safeDelay = 0
+  }
+  if (safeDelay > MAX_DELAY_MS) {
+    safeDelay = MAX_DELAY_MS
+  }
+  return new Promise((resolve) => setTimeout(resolve, safeDelay))
 }
 
 export async function getCart(): Promise<Cart> {
