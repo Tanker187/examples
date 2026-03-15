@@ -15,6 +15,13 @@ from src.run_store import get_user_project_sandboxes
 
 router = APIRouter(prefix="/api/play", tags=["play"])
 
+# Restrict which hosts can be probed by this endpoint to reduce SSRF risk.
+# Adjust this tuple to the domains that are legitimate for your deployment.
+ALLOWED_PROBE_HOST_SUFFIXES: tuple[str, ...] = (
+    "example.com",
+    "example.org",
+)
+
 
 def _is_private_address(ip_str: str) -> bool:
     """Return True if the given IP string is not suitable for public probing."""
@@ -34,7 +41,7 @@ def _is_private_address(ip_str: str) -> bool:
 
 
 def validate_public_url(raw_url: str) -> str:
-    """Validate that the URL is HTTP(S) and does not resolve to a private IP."""
+    """Validate that the URL is HTTP(S), targets an allowed host, and does not resolve to a private IP."""
     parsed = urlparse(raw_url)
 
     if parsed.scheme not in {"http", "https"}:
@@ -42,6 +49,15 @@ def validate_public_url(raw_url: str) -> str:
 
     if not parsed.hostname:
         raise HTTPException(status_code=400, detail="URL must include a hostname.")
+
+    hostname = parsed.hostname.lower()
+
+    # Enforce that the hostname is within a configured allowlist of domains.
+    if not any(
+        hostname == suffix.lower() or hostname.endswith("." + suffix.lower())
+        for suffix in ALLOWED_PROBE_HOST_SUFFIXES
+    ):
+        raise HTTPException(status_code=400, detail="URL host is not in the allowed domain list.")
 
     try:
         addr_info = socket.getaddrinfo(parsed.hostname, parsed.port, type=socket.SOCK_STREAM)
@@ -54,7 +70,7 @@ def validate_public_url(raw_url: str) -> str:
             if _is_private_address(ip_str):
                 raise HTTPException(status_code=400, detail="URL host resolves to a disallowed address.")
 
-    # If all resolved addresses are acceptable, consider the URL safe to probe.
+    # If all resolved addresses and the hostname are acceptable, consider the URL safe to probe.
     return raw_url
 
 
@@ -83,7 +99,7 @@ async def probe_url(url: str) -> dict[str, Any]:
 
     status_code: int | None = None
     try:
-        async with httpx.AsyncClient(follow_redirects=True, timeout=8.0) as client:
+        async with httpx.AsyncClient(follow_redirects=False, timeout=8.0) as client:
             try:
                 resp = await client.request("HEAD", safe_url)
                 status_code = int(resp.status_code)
