@@ -35,11 +35,20 @@ function readMDXFile(filePath) {
   return parseFrontmatter(rawContent)
 }
 
+function sanitizeSlug(rawSlug: string) {
+  // Normalize slug to a safe URL-friendly form: lowercase, alphanumeric and hyphens only.
+  return rawSlug
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // replace sequences of non-alphanumerics with hyphen
+    .replace(/^-+|-+$/g, '') // trim leading/trailing hyphens
+}
+
 function getMDXData(dir) {
   let mdxFiles = getMDXFiles(dir)
   return mdxFiles.map((file) => {
     let { metadata, content } = readMDXFile(path.join(dir, file))
-    let slug = path.basename(file, path.extname(file))
+    let rawSlug = path.basename(file, path.extname(file))
+    let slug = sanitizeSlug(rawSlug)
 
     return {
       metadata,
