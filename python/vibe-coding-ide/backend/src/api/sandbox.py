@@ -5,12 +5,57 @@ from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
 from vercel.oidc.aio import get_vercel_oidc_token
 from vercel.sandbox import AsyncSandbox as Sandbox
+import ipaddress
+import socket
+from urllib.parse import urlparse
 
 from src.agent.utils import make_ignore_predicate
 from src.run_store import get_user_project_sandboxes
 
 
 router = APIRouter(prefix="/api/play", tags=["play"])
+
+
+def _is_private_address(ip_str: str) -> bool:
+    """Return True if the given IP string is not suitable for public probing."""
+    try:
+        ip_obj = ipaddress.ip_address(ip_str)
+    except ValueError:
+        # If it's not a valid IP, treat as unsafe.
+        return True
+
+    return (
+        ip_obj.is_private
+        or ip_obj.is_loopback
+        or ip_obj.is_link_local
+        or ip_obj.is_multicast
+        or ip_obj.is_reserved
+    )
+
+
+def validate_public_url(raw_url: str) -> str:
+    """Validate that the URL is HTTP(S) and does not resolve to a private IP."""
+    parsed = urlparse(raw_url)
+
+    if parsed.scheme not in {"http", "https"}:
+        raise HTTPException(status_code=400, detail="Only http and https URLs are allowed.")
+
+    if not parsed.hostname:
+        raise HTTPException(status_code=400, detail="URL must include a hostname.")
+
+    try:
+        addr_info = socket.getaddrinfo(parsed.hostname, parsed.port, type=socket.SOCK_STREAM)
+    except OSError:
+        raise HTTPException(status_code=400, detail="URL hostname cannot be resolved.")
+
+    for family, _, _, _, sockaddr in addr_info:
+        if family in (socket.AF_INET, socket.AF_INET6):
+            ip_str = sockaddr[0]
+            if _is_private_address(ip_str):
+                raise HTTPException(status_code=400, detail="URL host resolves to a disallowed address.")
+
+    # If all resolved addresses are acceptable, consider the URL safe to probe.
+    return raw_url
 
 
 class SyncRequest(BaseModel):
@@ -33,16 +78,19 @@ async def probe_url(url: str) -> dict[str, Any]:
     Some servers do not support HEAD; in that case, fall back to a
     streamed GET to obtain only the status code.
     """
+    # Validate URL to reduce SSRF risk before making any outbound request.
+    safe_url = validate_public_url(url)
+
     status_code: int | None = None
     try:
         async with httpx.AsyncClient(follow_redirects=True, timeout=8.0) as client:
             try:
-                resp = await client.request("HEAD", url)
+                resp = await client.request("HEAD", safe_url)
                 status_code = int(resp.status_code)
             except Exception:
                 # Fall back to a minimal GET (streamed, do not read body)
                 try:
-                    async with client.stream("GET", url) as resp2:
+                    async with client.stream("GET", safe_url) as resp2:
                         status_code = int(resp2.status_code)
                 except Exception:
                     status_code = None
