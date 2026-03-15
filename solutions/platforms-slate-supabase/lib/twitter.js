@@ -50,13 +50,26 @@ export const getTweets = async (id) => {
   const getExternalUrls = (tweet) => {
     const externalURLs = tweet?.entities?.urls
     const mappings = {}
+    const isInternalTwitterUrl = (url) => {
+      const candidate = url.expanded_url || url.url
+      if (!candidate) return false
+      try {
+        const parsed = new URL(candidate)
+        const host = parsed.hostname.toLowerCase()
+        if (host === 'pic.twitter.com') {
+          return true
+        }
+        if (host === 'twitter.com' || host.endsWith('.twitter.com')) {
+          return true
+        }
+      } catch (e) {
+        // If the URL cannot be parsed, treat it as external by default
+      }
+      return false
+    }
     if (externalURLs) {
       externalURLs.map((url) => {
-        mappings[`${url.url}`] =
-          !url.display_url.startsWith('pic.twitter.com') &&
-          !url.display_url.startsWith('twitter.com')
-            ? url.expanded_url
-            : ''
+        mappings[`${url.url}`] = isInternalTwitterUrl(url) ? '' : url.expanded_url
       })
     }
     var processedText = tweet?.text
