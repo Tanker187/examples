@@ -13,6 +13,25 @@ import { getUserId } from '../lib/user'
 
 export type ProjectTab = { id: string; name: string }
 
+// Generate a cryptographically secure base-36 string similar to
+// Math.random().toString(36).slice(2, 7)
+function secureRandomBase36(length: number = 5): string {
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.getRandomValues === 'function'
+  ) {
+    const arr = new Uint32Array(1)
+    crypto.getRandomValues(arr)
+    return arr[0].toString(36).slice(0, length)
+  }
+  // Fallback for environments without Web Crypto; preserves existing behavior
+  return Math.random().toString(36).slice(2, 2 + length)
+}
+
+function generateProjectId(): string {
+  return `proj_${Date.now().toString(36)}_${secureRandomBase36(5)}`
+}
+
 type ProjectState = {
   files: Record<string, string>
   proposals: Record<string, string>
@@ -138,11 +157,7 @@ export const ProjectsProvider: React.FC<{ children: React.ReactNode }> = ({
   const defaultTemplate = getTemplateById(defaultTemplateId) || TEMPLATES[0]
 
   const initialProjectId = React.useMemo(
-    () =>
-      persisted?.activeProjectId ||
-      `proj_${Date.now().toString(36)}_${Math.random()
-        .toString(36)
-        .slice(2, 7)}`,
+    () => persisted?.activeProjectId || generateProjectId(),
     [persisted]
   )
 
@@ -1070,9 +1085,7 @@ export const ProjectsProvider: React.FC<{ children: React.ReactNode }> = ({
   // Public project management operations
   const createProject = React.useCallback(
     (name: string, templateId: string) => {
-      const id = `proj_${Date.now().toString(36)}_${Math.random()
-        .toString(36)
-        .slice(2, 7)}`
+      const id = generateProjectId()
       const t =
         getTemplateById(templateId) ||
         getStackById(templateId) ||
@@ -1126,9 +1139,7 @@ export const ProjectsProvider: React.FC<{ children: React.ReactNode }> = ({
       ) {
         nameCandidate = tryName(i + 1)
       }
-      const newId = `proj_${Date.now().toString(36)}_${Math.random()
-        .toString(36)
-        .slice(2, 7)}`
+      const newId = generateProjectId()
       setProjects((prev) => [...prev, { id: newId, name: nameCandidate }])
       if (srcState) {
         setProjectStates((prev) => ({
