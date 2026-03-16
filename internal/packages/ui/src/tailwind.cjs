@@ -1,7 +1,6 @@
 const colors = {
   blue: '#2882ef',
   lightblue: '#2882ef',
-  violet: '#8524c3',
   rosa: '#f02888',
   yellow: '#f9c32a',
   orange: '#f97449',
