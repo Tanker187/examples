@@ -8,12 +8,15 @@ export default async function removeDomain(req, res) {
   const domainPattern =
     /^(?=.{1,253}$)(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/
 
-  if (typeof domain !== 'string' || !domainPattern.test(domain)) {
+  const normalizedDomain =
+    typeof domain === 'string' ? domain.trim().toLowerCase() : ''
+
+  if (!normalizedDomain || !domainPattern.test(normalizedDomain)) {
     return res.status(400).json({ error: 'Invalid domain' })
   }
 
   const response = await fetch(
-    `https://api.vercel.com/v8/projects/${process.env.PROJECT_ID_VERCEL}/domains/${domain}?teamId=${process.env.TEAM_ID_VERCEL}`,
+    `https://api.vercel.com/v8/projects/${process.env.PROJECT_ID_VERCEL}/domains/${normalizedDomain}?teamId=${process.env.TEAM_ID_VERCEL}`,
     {
       headers: {
         Authorization: `Bearer ${process.env.AUTH_BEARER_TOKEN}`,
