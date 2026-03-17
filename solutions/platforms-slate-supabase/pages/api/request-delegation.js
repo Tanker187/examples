@@ -4,11 +4,18 @@ function isValidDomain(domain) {
   if (!trimmed) return false
   // Basic sane length limits for a DNS name
   if (trimmed.length > 253) return false
-  // Only allow letters, digits, hyphens, and dots
-  if (!/^[A-Za-z0-9.-]+$/.test(trimmed)) return false
-  // Must contain at least one dot and not start/end with dot or hyphen
-  if (!trimmed.includes('.')) return false
-  if (trimmed.startsWith('.') || trimmed.endsWith('.') || trimmed.startsWith('-') || trimmed.endsWith('-')) return false
+  // Split into labels and validate each one
+  const labels = trimmed.split('.')
+  // Must contain at least one dot and no empty labels
+  if (labels.length < 2 || labels.some(label => label.length === 0)) return false
+  for (const label of labels) {
+    // Labels must be between 1 and 63 characters
+    if (label.length < 1 || label.length > 63) return false
+    // Only allow letters, digits, and hyphens in each label
+    if (!/^[A-Za-z0-9-]+$/.test(label)) return false
+    // Labels must not start or end with a hyphen
+    if (label.startsWith('-') || label.endsWith('-')) return false
+  }
   return true
 }
 
