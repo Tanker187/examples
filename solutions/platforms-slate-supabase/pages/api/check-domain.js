@@ -2,9 +2,9 @@ export default async function checkDomain(req, res) {
   const { domain } = req.query
 
   const domainStr = typeof domain === 'string' ? domain.trim() : ''
-  // Allow only reasonable domain names: letters, digits, hyphens and dots.
-  // Reject anything with slashes, schemes, or other unexpected characters.
-  const domainPattern = /^(?=.{1,253}$)([a-zA-Z0-9-]{1,63}\.)*[a-zA-Z0-9-]{1,63}$/
+  // Allow only valid domain names: letters, digits, hyphens and dots.
+  // Each label must be 1-63 chars, cannot start or end with a hyphen, and no slashes/schemes are allowed.
+  const domainPattern = /^(?=.{1,253}$)([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/
 
   if (!domainStr || !domainPattern.test(domainStr)) {
     return res.status(400).json({ error: 'Invalid domain parameter' })
