@@ -13,19 +13,30 @@ env:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
+permissions:
+  contents: read
+
 jobs:
   release:
+    permissions:
+      contents: write  # for changesets/action to push to the repo
+      pull-requests: write  # for changesets/action to create PRs
     name: Release
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: step-security/action-setup@3d419c73e38e670dbffe349ffff26dd13c164640 # v4.2.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 20
           cache: pnpm
@@ -37,7 +48,7 @@ jobs:
       - name: Create Release PR or Publish Packages
         # Last known version working with cwd
         # https://github.com/changesets/action/issues/501
-        uses: changesets/action@v1.4.9
+        uses: step-security/changeset-action@c3cee0943e9b8be3a72f62588e00dd7c107e101e # v1.6.0
         with:
           cwd: internal
           # Builds the package and executes `changeset publish`
