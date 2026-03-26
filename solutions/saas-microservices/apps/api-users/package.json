@@ -11,7 +11,7 @@
   "devDependencies": {
     "@types/node": "^20.11.17",
     "@vercel/microfrontends": "2.0.0",
-    "srvx": "^0.8.6",
+    "srvx": "^0.11.13",
     "typescript": "^5.8.3"
   }
 }
