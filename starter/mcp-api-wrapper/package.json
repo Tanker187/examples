@@ -12,7 +12,7 @@
   "license": "ISC",
   "packageManager": "pnpm@9.4.0",
   "dependencies": {
-    "mcp-handler": "^1.0.1",
+    "mcp-handler": "^1.1.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
