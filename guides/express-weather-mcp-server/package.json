@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "express": "^5.1.0",
-    "mcp-handler": "^1.0.3",
+    "mcp-handler": "^1.1.0",
     "zod": "3.23.8"
   },
   "devDependencies": {
