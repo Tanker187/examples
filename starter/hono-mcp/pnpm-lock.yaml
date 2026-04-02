@@ -15,8 +15,8 @@ importers:
         specifier: ^4.9.2
         version: 4.9.2
       mcp-handler:
-        specifier: ^1.0.1
-        version: 1.0.1(@modelcontextprotocol/sdk@1.17.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@modelcontextprotocol/sdk@1.17.3)
       zod:
         specifier: ^3
         version: 3.25.76
@@ -89,8 +89,8 @@ packages:
     resolution: {integrity: sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==}
     engines: {node: '>= 0.4'}
 
-  chalk@5.5.0:
-    resolution: {integrity: sha512-1tm8DTaJhPBG3bIkVeZt1iZM9GfSX2lzOeDVZH9R9ffRHpmHvxZ/QhgQH/aDTkswQVt+YHdXAdS/In/30OjCbg==}
+  chalk@5.6.2:
+    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   cluster-key-slot@1.1.2:
@@ -263,11 +263,11 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  mcp-handler@1.0.1:
-    resolution: {integrity: sha512-a4AB6eI8XdBrL9LYS68XLflh48lJI+nNPEPVj1FMI7CXZIsj/jOx4PbCeiWqrBJf2QRoCT1rxSXI8cN4AsdS4w==}
+  mcp-handler@1.1.0:
+    resolution: {integrity: sha512-MVCES7g18gcoZy+R/3v5nadkUMzMAWdos8jRl6DyljOKvd2/ZKDmwlCjL6zp4vo+7FeCXOYL1uWinHWlkKAAUg==}
     hasBin: true
     peerDependencies:
-      '@modelcontextprotocol/sdk': ^1.12.0
+      '@modelcontextprotocol/sdk': 1.26.0
       next: '>=13.0.0'
     peerDependenciesMeta:
       next:
@@ -536,7 +536,7 @@ snapshots:
       call-bind-apply-helpers: 1.0.2
       get-intrinsic: 1.3.0
 
-  chalk@5.5.0: {}
+  chalk@5.6.2: {}
 
   cluster-key-slot@1.1.2: {}
 
@@ -708,10 +708,10 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  mcp-handler@1.0.1(@modelcontextprotocol/sdk@1.17.3):
+  mcp-handler@1.1.0(@modelcontextprotocol/sdk@1.17.3):
     dependencies:
       '@modelcontextprotocol/sdk': 1.17.3
-      chalk: 5.5.0
+      chalk: 5.6.2
       commander: 11.1.0
       redis: 4.7.1
 
