@@ -13,7 +13,7 @@
     "@aws-sdk/client-neptune-graph": "^3.290.0",
     "@vercel/examples-ui": "^2.0.4",
     "swr": "^2.3.0",
-    "next": "^16.0.10",
+    "next": "^16.2.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1"
   },
