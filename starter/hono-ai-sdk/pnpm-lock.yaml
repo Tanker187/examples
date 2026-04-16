@@ -13,7 +13,7 @@ importers:
         version: 5.0.0-beta.34(zod@3.25.76)
       hono:
         specifier: ^4.8.9
-        version: 4.8.9
+        version: 4.12.14
     devDependencies:
       '@types/node':
         specifier: ^20.11.17
@@ -60,8 +60,8 @@ packages:
     resolution: {integrity: sha512-nVpZkTMM9rF6AQ9gPJpFsNAMt48wIzB5TQgiTLdHiuO8XEDhUgZEhqKlZWXbIzo9VmJ/HvysHqEaVeD5v9TPvA==}
     engines: {node: '>=20.0.0'}
 
-  hono@4.8.9:
-    resolution: {integrity: sha512-ERIxkXMRhUxGV7nS/Af52+j2KL60B1eg+k6cPtgzrGughS+espS9KQ7QO0SMnevtmRlBfAcN0mf1jKtO6j/doA==}
+  hono@4.12.14:
+    resolution: {integrity: sha512-am5zfg3yu6sqn5yjKBNqhnTX7Cv+m00ox+7jbaKkrLMRJ4rAdldd1xPd/JzbBWspqaQv6RSTrgFN95EsfhC+7w==}
     engines: {node: '>=16.9.0'}
 
   json-schema@0.4.0:
@@ -121,7 +121,7 @@ snapshots:
 
   eventsource-parser@3.0.3: {}
 
-  hono@4.8.9: {}
+  hono@4.12.14: {}
 
   json-schema@0.4.0: {}
 
